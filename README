@@ -1,13 +1,34 @@
 Fsp
 ===
 
-Introduction goes here.
+Filtering, Sorting and Paginating the data for Rails 4.2
 
 
 Example
 =======
 
-Example goes here.
+Controller:
+  helper :filter_sort
+  include FilterSortHelper
+
+   def index
+     @fsp = fsp_init(Playlist, {:sorts => 'title', :conditions => ["roles.name = 'owner'", "roles.name <> 'owner'", nil]})
+     ...
+   end
+
+ View (table header in list.rhtml):
+
+   <thead>
+     <tr>
+       <%= sort_header_tag('id', :title => 'Sort by contact ID') %>
+       <%= sort_header_tag('Last_name', :caption => 'Name') %>
+       <%= sort_header_tag('phone') %>
+       <%= sort_header_tag('address.street', :width => 200) %>
+     </tr>
+   </thead>
+
+ - The ascending and descending sort icon images are sort_asc.png and
+   sort_desc.png and reside in the application's images directory.
 
 
 Copyright (c) 2008 [name of plugin creator], released under the MIT license
