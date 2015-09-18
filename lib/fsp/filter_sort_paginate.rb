@@ -26,8 +26,8 @@
 module FSP
   class FilterSortPaginate
     cattr_accessor :default_options
-    self.default_options = {:filters => [], :filter => 0, :page => 1, :page_size => 10}
-    attr_accessor :filter, :sorts, :page, :page_size   # Dynamic state variables
+    self.default_options = {:filters => [], :filter => 0}
+    attr_accessor :filter, :sorts   # Dynamic state variables
     attr_accessor :count, :conditions
     attr_reader :name, :url_writer, :query_options, :sorter
 
@@ -45,7 +45,7 @@ module FSP
 
     # Convert state to hash.
     def state
-      {:filter => filter, :sorts => sorter.to_param, :page => page, :page_size => page_size}
+      {:filter => filter, :sorts => sorter.to_param}
     end
     alias get_params state
 
@@ -53,8 +53,6 @@ module FSP
     def state=(h)
       self.filter = h[:filter].to_i if h[:filter]
       sorter.update(h[:sorts]) if h[:sorts]
-      self.page = h[:page].to_i if h[:page]
-      self.page_size = h[:page_size].to_i if h[:page_size]
     end
 
     # Used when duplicating an object to ensure deep state variables are also duplicated and not just referenced.
@@ -86,7 +84,6 @@ module FSP
 
     def toggle_sort_order
       self.sorter.toggle_order
-      self.page = 1
       self
     end
 
@@ -97,13 +94,12 @@ module FSP
       else
         sorter.push(column_name)
       end
-      self.page = 1
       self
     end
 
     # Change the current page.
     def change_page(p)
-      self.page = p
+      #self.page = p
       self
     end
 
@@ -111,7 +107,7 @@ module FSP
     def next_filter
       unless @filters.size < 2
         self.filter = (filter + 1).modulo(@filters.size)
-        self.page = 1
+        #self.page = 1
       end
       self
     end
@@ -156,7 +152,6 @@ module FSP
     def find_options
       count_options.tap do |fo|
         fo[:order] = sorter.to_find_option if sorter.to_find_option
-        fo.merge!({:offset => (page - 1)*page_size, :limit => page_size}) unless page_size.zero?
       end
     end
 

@@ -11,13 +11,20 @@
 # - Consecutive clicks toggle the column's sort order.
 # - State is available as a small hash (for storage in session or URL parameters).
 # - Icons identify sort column and state as well as filter state.
+require 'fsp/helper'
+require 'fsp/filter_sort_paginate'
+require 'fsp/sorter'
+
 module FSP
   module ControllerMethods
     # Return a new FSP object that adapts to persisted state and parameters, then persist merged new state.
     def fsp_init(resource, p, options = {})
       FSP::FilterSortPaginate.new(resource, options).tap do |fsp|
-        fsp.state = p.inject({}) {|m, (k,v)| m[k.to_sym] = v if %w(filter sorts page page_size).include?(k);m} # Merge persisted state and parameters
+        fsp.state = p.inject({}) {|m, (k,v)| m[k.to_sym] = v if %w(filter sorts).include?(k);m} # Merge persisted state and parameters
       end
     end
   end
 end
+
+ActionView::Base.send :include, FSP::Helper
+ActionController::Base.send :include, FSP::ControllerMethods
